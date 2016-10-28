@@ -21,7 +21,8 @@ app.secret_key = 'super secret string'  # Change this!
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'toor'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
-app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
+# app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
 #begin code used for login
@@ -113,7 +114,9 @@ def unauthorized_handler():
 #you can specify specific methods (GET/POST) in function header instead of inside the functions as seen earlier
 @app.route("/register", methods=['GET'])
 def register():
-    return render_template('register.html', supress='False')
+    get_suppress = request.args.get('supress')
+    print(get_suppress)
+    return render_template('register.html', supress=get_suppress)
 
 
 @app.route("/register", methods=['POST'])
@@ -136,7 +139,7 @@ def register_user():
         return render_template('hello.html', name=email, message='Account Created!')
     else:
         print("not unique user")
-        return flask.redirect(flask.url_for('register'), supress=True)
+        return flask.redirect(flask.url_for('register', supress=True))
 
 
 def getUsersPhotos(uid):
