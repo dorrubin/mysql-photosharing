@@ -6,7 +6,9 @@ Author: Dor Rubin
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
-import flask.ext.login as flask_login
+import flask_login as flask_login
+# Testing
+from IPython import embed
 
 #for image uploading
 from werkzeug import secure_filename
@@ -16,6 +18,9 @@ import base64
 mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = 'super secret string'  # Change this!
+app.debug = True
+
+
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -115,7 +120,6 @@ def unauthorized_handler():
 @app.route("/register", methods=['GET'])
 def register():
     get_suppress = request.args.get('supress')
-    print(get_suppress)
     return render_template('register.html', supress=get_suppress)
 
 
@@ -141,6 +145,10 @@ def register_user():
         print("not unique user")
         return flask.redirect(flask.url_for('register', supress=True))
 
+def getAllUsers():
+    cursor = conn.cursor()
+    cursor.execute("SELECT email FROM Users")
+    return cursor.fetchall() # returns all user emails
 
 def getUsersPhotos(uid):
     cursor = conn.cursor()
@@ -169,6 +177,15 @@ def isEmailUnique(email):
 @flask_login.login_required
 def protected():
     return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+
+
+@app.route("/friends", methods=['GET'])
+@flask_login.login_required
+def friends():
+    list_users = getAllUsers()
+    # embed()
+    return render_template('friends.html', message="Look at all your possible friends", users=list_users)
+
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -213,4 +230,4 @@ def hello():
 if __name__ == "__main__":
     #this is invoked when in the shell  you run
     #$ python app.py
-    app.run(port=5000, debug=True)
+    app.run(port=5000)

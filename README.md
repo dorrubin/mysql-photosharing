@@ -8,16 +8,9 @@ http://localhost:5000/
 Include relational diagram screenshot
 
 Todo:
-1. Update Schema
- - Users
- - Friends
- - Albums
- - Photos
- - Tags
- - Comments
-
+~~1. Update Schema~~
 ~~2. Allow user registrations~~
-3. Error handling of the user registration-- no duplicates
+~~3. Error handling of the user registration-- no duplicates~~
 4. Adding friends
 5. Show all friends
 6. Top 10 user statistic page
