@@ -139,7 +139,7 @@ def register_user():
     cursor = conn.cursor()
     test = isEmailUnique(email)
     if test:
-        print(cursor.execute("INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}','{6}' )".format(email, password, firstname, lastname, gender, dob, hometown)))
+        cursor.execute("INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}','{6}' )".format(email, password, firstname, lastname, gender, dob, hometown))
         conn.commit()
         #log user in
         # user = User()
@@ -181,17 +181,52 @@ def isEmailUnique(email):
         return True
 #end login code
 
-@app.route('/profile')
+def areFriends(user_email, friend_email):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """SELECT *
+               FROM Friends
+               WHERE requester_email = '{0}'
+               AND responder_email = '{1}'
+               UNION
+               SELECT *
+               FROM Friends
+               WHERE requester_email = '{1}'
+               AND responder_email = '{0}'
+            """.format(user_email, friend_email)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    if len(data):
+        result = True
+    else:
+        result = False
+    return result  # 0 if not friends and 1 if yes
+
+@app.route('/profile', methods=['GET'])
 @flask_login.login_required
 def own_profile():
     user_id = flask_login.current_user.id
     return flask.redirect(flask.url_for('profile', page_id=user_id))
 
-@app.route('/profile/<page_id>')
+@app.route('/profile/<page_id>', methods=['GET', 'POST'])
 @flask_login.login_required
 def profile(page_id):
-    fname = getUserEntryFromId(page_id)[3]
-    return render_template('profile.html', name=fname)
+    if flask.request.method == 'GET':
+        fname = getUserEntryFromId(page_id)[3]
+        current_user = getUserEntryFromId(flask_login.current_user.id)[1]
+        friend = getUserEntryFromId(page_id)[1]
+        is_self = (flask_login.current_user.id == page_id)
+        connection = areFriends(current_user, friend) or is_self
+        # embed()
+        return render_template('profile.html', pageid=page_id, name=fname, friendship=connection)
+    # POST Request
+    embed()
+    looking_at = request.form.get('friendship')
+    person_a = getUserEntryFromId(flask_login.current_user.id)[1]
+    person_b = getUserEntryFromId(looking_at)[1]
+    cursor.execute("INSERT INTO Friends (requester_email, responder_email) VALUES ('{0}', '{1}')".format(person_a, person_b))
+    conn.commit()
+    return flask.redirect(flask.url_for('friends'))
 
 
 def getAllUserFriends(email):
@@ -233,10 +268,12 @@ def getAllOtherUsers(uid):
 @app.route("/friends", methods=['GET'])
 @flask_login.login_required
 def friends():
-    email = getUserEntryFromId(flask_login.current_user.id)[1]
-    friends = getAllUserFriends(email)
-    other_users = getAllOtherUsers(flask_login.current_user.id)
-    return render_template('friends.html', current_friends=friends, possible_friends=other_users)
+    if flask.request.method == 'GET':
+        email = getUserEntryFromId(flask_login.current_user.id)[1]
+        friends = getAllUserFriends(email)
+        other_users = getAllOtherUsers(flask_login.current_user.id)
+        return render_template('friends.html', current_friends=friends, possible_friends=other_users)
+    # else its a POST request
 
 @app.route('/friends/search', methods=['GET', 'POST'])
 def friend_search():
@@ -246,11 +283,10 @@ def friend_search():
     email = flask.request.form['email']
     cursor = conn.cursor()
     #check if email is registered
-    query = ''' SELECT email, first_name, last_name
+    query = ''' SELECT user_id, email, first_name, last_name
                 FROM Users
                 WHERE email = '{0}'
             '''
-    # embed()
     cursor.execute(query.format(email))
     data = cursor.fetchall()
     return render_template('search.html', search_friends=data)

@@ -6,6 +6,12 @@
   <h1>This is {{ name }}'s profile!</h1>
 {% endif %}
 
+{% if friendship==False %}
+<form action='addfriend' method='POST'>
+    <button name="friendship" type="submit" value="{{pageid}}">Add Friend!</button>
+</form>
+{% endif %}
+
 {% if photos %}
 <h2>Here are their photos</h2>
     <ul>
