@@ -1,0 +1,22 @@
+<!doctype html>
+<title>Photoshare</title>
+
+
+<h2>This is the individual photo</h2>
+{% if photo %}
+    <ul>
+        <li>
+            <p>{{photo[3]}}</p>
+            <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+        </li>
+    </ul>
+{% endif %}
+
+
+<hr>
+<ul>
+    <li><a href='/upload'>Upload a photo</a> </li>
+    <li><a href='/friends'>Friends</a> </li>
+    <li><a href='/logout'>Logout</a></li>
+    <li><a href='/profile'>Profile</a></li>
+</ul>

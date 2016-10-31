@@ -12,11 +12,11 @@
 </form>
 {% endif %}
 
-{% if photos %}
-<h2>Here are their photos</h2>
+{% if albums %}
+<h2>Here are their albums</h2>
     <ul>
-    {% for photo in photos %}
-        <li><img src='data:image/png;base64, {{photo[0]}}'/></li>
+    {% for album in albums %}
+        <li><a href="/albums/{{album[0]}}">{{album[1]}}</a></li>
     {% endfor %}
     </ul>
 {% endif %}

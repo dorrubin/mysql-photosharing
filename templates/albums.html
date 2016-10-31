@@ -1,0 +1,23 @@
+<!doctype html>
+<title>Photoshare</title>
+
+
+<h2>Here are their photos</h2>
+{% if photos %}
+    <ul>
+    {% for photo in photos %}
+        <caption>{{photo[3]}}</caption>
+        <a href="/albums/{{pageid}}/photos/{{photo[0]}}">
+            <li><img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/></li>
+        </a>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<hr>
+<ul>
+    <li><a href='/upload'>Upload a photo</a> </li>
+    <li><a href='/friends'>Friends</a> </li>
+    <li><a href='/logout'>Logout</a></li>
+    <li><a href='/profile'>Profile</a></li>
+</ul>

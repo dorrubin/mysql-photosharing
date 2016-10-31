@@ -153,12 +153,6 @@ def register_user():
         return flask.redirect(flask.url_for('register', supress=True))
 
 
-def getUsersPhotos(uid):
-    cursor = conn.cursor()
-    cursor.execute("SELECT imgdata, picture_id FROM Pictures WHERE user_id = '{0}'".format(uid))
-    return cursor.fetchall()  # NOTE list of tuples, [(imgdata, pid), ...]
-
-
 def getUserIdFromEmail(email):
     cursor = conn.cursor()
     cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
@@ -181,6 +175,7 @@ def isEmailUnique(email):
         return True
 #end login code
 
+
 def areFriends(user_email, friend_email):
     cursor = conn.cursor()
     # get user email of users who are not friends with the logged in user
@@ -202,6 +197,41 @@ def areFriends(user_email, friend_email):
         result = False
     return result  # 0 if not friends and 1 if yes
 
+
+def getUserAlbums(uid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT album_id, name
+                FROM Albums NATURAL JOIN
+                    (SELECT album_id
+                    FROM Album_User
+                    WHERE user_id = '{0}') AS T;
+            """.format(uid)
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all user emails
+
+def getAlbumPhotos(aid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT *
+                FROM Photos NATURAL JOIN
+                    (SELECT photo_id
+                    FROM Album_Photo
+                    WHERE album_id = '{0}') AS T;
+            """.format(aid)
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all photos in that album
+
+def getPhotoFromPhotoId(pid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT *
+                FROM Photos
+                WHERE photo_id = '{0}';
+            """.format(pid)
+    cursor.execute(query)
+    return cursor.fetchall()[0]  # returns all photos in that album
+
 @app.route('/profile', methods=['GET'])
 @flask_login.login_required
 def own_profile():
@@ -217,8 +247,8 @@ def profile(page_id):
         friend = getUserEntryFromId(page_id)[1]
         is_self = (flask_login.current_user.id == page_id)
         connection = areFriends(current_user, friend) or is_self
-        # embed()
-        return render_template('profile.html', pageid=page_id, name=fname, friendship=connection)
+        user_albums = getUserAlbums(page_id)
+        return render_template('profile.html', pageid=page_id, name=fname, friendship=connection, albums=user_albums)
     # POST Request
     looking_at = request.form.get('friendship')
     person_a = getUserEntryFromId(flask_login.current_user.id)[1]
@@ -227,6 +257,18 @@ def profile(page_id):
     conn.commit()
     return flask.redirect(flask.url_for('friends'))
 
+@app.route('/albums/<page_id>', methods=['GET'])
+def albums(page_id):
+    if flask.request.method == 'GET':
+        album_photos = getAlbumPhotos(page_id)
+        return render_template('albums.html', pageid=page_id, photos=album_photos)
+
+@app.route('/albums/<album_id>/photos/<photo_id>', methods=['GET'])
+def photos(album_id, photo_id):
+    if flask.request.method == 'GET':
+        user_photo = getPhotoFromPhotoId(photo_id)
+        # embed()
+        return render_template('photo.html', photo=user_photo)
 
 def getAllUserFriends(email):
     cursor = conn.cursor()
@@ -298,17 +340,6 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-def getUserAlbums(uid):
-    cursor = conn.cursor()
-    # get user email of users who are not friends with the logged in user
-    query = """ SELECT album_id, name
-                FROM Albums NATURAL JOIN
-                    (SELECT album_id
-                    FROM Album_User
-                    WHERE user_id = '{0}') AS T;
-            """.format(uid)
-    cursor.execute(query)
-    return cursor.fetchall()  # returns all user emails
 
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required

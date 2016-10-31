@@ -70,7 +70,7 @@ Have unique photo id as primary key. Each photo needs data (a url to S3 bucket) 
 CREATE TABLE Photos( 
     photo_id int4  AUTO_INCREMENT,
     imgdata LONGBLOB,
-    -- INDEX upid_idx (user_id),
+    likes INT DEFAULT 0, 
     caption VARCHAR(255),
     CONSTRAINT photo_pk PRIMARY KEY (photo_id)
 );
@@ -114,7 +114,7 @@ Comments - Relationship:
 Like photo_tag, comments can only be made with a complete tuple of user_id and photo_id. Assuming that comments can only be made on photos. Has a comment_id as primary key to easily differentiate between comments made on the same day.
 */
 CREATE TABLE Comments(
-    comment_id int4,
+    comment_id int4 AUTO_INCREMENT,
     user_id int4 NOT NULL,
     photo_id int4 NOT NULL,
     text VARCHAR(255) NOT NULL,
