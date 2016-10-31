@@ -32,10 +32,10 @@ Friends - Relationship:
 Both requester_id and responder_id are entities in User.They are differentiated by the user who initiated the friend request (requester) and the one who responded AND accepted (responder). Both ids are needed to create an entry.
 */
 CREATE TABLE Friends( 
-    requester_id VARCHAR(255) NOT NULL,
-    responder_id VARCHAR(255) NOT NULL,
-    FOREIGN KEY (requester_id) REFERENCES Users(user_id),
-    FOREIGN KEY (responder_id) REFERENCES Users(user_id)
+    requester_email VARCHAR(255) NOT NULL,
+    responder_email VARCHAR(255) NOT NULL,
+    FOREIGN KEY (requester_email) REFERENCES Users(email),
+    FOREIGN KEY (responder_email) REFERENCES Users(email)
 );
 
 
@@ -130,4 +130,6 @@ INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown
 
 INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('foo@bu.edu', 'jk', 'Foo', 'Bar', 'other', '1938-3-02', 'Portland');
 
-INSERT INTO Friends(requester_email, responder_email) VALUES ('test1@bu.edu', 'test2@bu.edu')
+INSERT INTO Friends(requester_email, responder_email) VALUES ('test1@bu.edu', 'test2@bu.edu');
+
+INSERT INTO Friends(requester_email, responder_email) VALUES ('foo@bu.edu', 'test1@bu.edu');

@@ -1,40 +1,18 @@
 <!doctype html>
-{% if message %}
-  <h4>{{message}}!</h4>
-{% endif %}
 <title>Friends</title>
-{% if name %}
-  <h1>Hello {{ name }}!</h1>
-{% endif %}
 
 <h2>Here are your friends</h2>
     <ul>
     {% for friend in current_friends %}
-        <li>{{friend[0]}}</li>
+        <li><a href="/profile/{{friend[0]}}">{{friend[1]}}</a></li>
     {% endfor %}
     </ul>
 
-<h2>Search for friends</h2>
-    <form method="POST" action="{{ url_for('friends') }}">
-        <label for="email">Enter your friends name:</label>
-        <input type="email" name="email" /><br />
-        <input type="submit" />
-    </form>
-    <ul>
-    {% for possible in possible_friends %}
-        <li>{{possible[0]}}</li>
-    {% endfor %}
-    </ul>
-
-{% if message is none %}
-  <p>You should <a href='/login'>login!</a></p>
-{% else %}
-  <p> Go to <a href='/profile'>profile?</a></p>
-{% endif %}
-
+<hr>
 <ul>
     <li><a href='/upload'>Upload a photo</a> </li> 
     <li><a href='/friends'>Friends</a> </li>
+    <li><a href='/friends/search'>Friend Search</a> </li>
     <li><a href='/logout'>Logout</a></li>
     <li><a href='/profile'>Profile</a></li>
 </ul>

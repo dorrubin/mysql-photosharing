@@ -164,10 +164,12 @@ def getUserIdFromEmail(email):
     cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
     return cursor.fetchone()[0]
 
-def getUserNameFromId(id):
+
+def getUserEntryFromId(uid):
     cursor = conn.cursor()
-    cursor.execute("SELECT first_name  FROM Users WHERE user_id = '{0}'".format(id))
-    return cursor.fetchone()[0]
+    cursor.execute("SELECT * FROM Users WHERE user_id = '{0}'".format(uid))
+    return cursor.fetchone()
+
 
 def isEmailUnique(email):
     #use this to check if a email has already been registered
@@ -188,20 +190,23 @@ def own_profile():
 @app.route('/profile/<page_id>')
 @flask_login.login_required
 def profile(page_id):
-    fname = getUserNameFromId(page_id)
+    fname = getUserEntryFromId(page_id)[3]
     return render_template('profile.html', name=fname)
 
-def getAllUserFriends(uid):
+
+def getAllUserFriends(email):
     cursor = conn.cursor()
     # get user email of users who are not friends with the logged in user
-    query = """SELECT responder_email
-               FROM Friends
-               WHERE requester_email = '{0}'
-               UNION
-               SELECT requester_email
-               FROM Friends
-               WHERE responder_email = '{0}'
-            """.format(uid)
+    query = """ SELECT user_id, email
+                FROM Users NATURAL JOIN
+                    (SELECT responder_email as email
+                    FROM Friends
+                    WHERE requester_email = '{0}'
+                    UNION
+                    SELECT requester_email as email
+                    FROM Friends
+                    WHERE responder_email = '{0}') AS T;
+            """.format(email)
     cursor.execute(query)
     return cursor.fetchall()  # returns all user emails
 
@@ -225,13 +230,30 @@ def getAllOtherUsers(uid):
     return cursor.fetchall()  # returns all user emails
 
 
-@app.route("/friends", methods=['GET', 'POST'])
+@app.route("/friends", methods=['GET'])
 @flask_login.login_required
 def friends():
-    friends = getAllUserFriends(flask_login.current_user.id)
+    email = getUserEntryFromId(flask_login.current_user.id)[1]
+    friends = getAllUserFriends(email)
     other_users = getAllOtherUsers(flask_login.current_user.id)
-    return render_template('friends.html', message="Look at all your possible friends", current_friends=friends, possible_friends=other_users)
+    return render_template('friends.html', current_friends=friends, possible_friends=other_users)
 
+@app.route('/friends/search', methods=['GET', 'POST'])
+def friend_search():
+    if flask.request.method == 'GET':
+        return render_template('search.html')
+    #The request method is POST (page is recieving data)
+    email = flask.request.form['email']
+    cursor = conn.cursor()
+    #check if email is registered
+    query = ''' SELECT email, first_name, last_name
+                FROM Users
+                WHERE email = '{0}'
+            '''
+    # embed()
+    cursor.execute(query.format(email))
+    data = cursor.fetchall()
+    return render_template('search.html', search_friends=data)
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML

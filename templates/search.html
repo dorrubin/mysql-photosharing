@@ -1,0 +1,27 @@
+<!doctype html>
+<title>Friends</title>
+
+<h2>Search for Friends</h2>
+<form action='search' method='POST'>
+    <input type='text' name='email' id='email' placeholder='email'></input>
+    <input type='submit' name='submit'></input>
+</form>
+
+
+{% if search_friends %}
+<h4>Here is what your search found:</h4>
+    <ul>
+    {% for friend in search_friends %}
+        <li><a href="/profile/{{friend[0]}}">{{friend[1]}} {{friend[2]}}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}    
+
+<hr>
+<ul>
+    <li><a href='/upload'>Upload a photo</a> </li> 
+    <li><a href='/friends'>Friends</a> </li>
+    <li><a href='/friends/search'>Friend Search</a> </li>
+    <li><a href='/logout'>Logout</a></li>
+    <li><a href='/profile'>Profile</a></li>
+</ul>
