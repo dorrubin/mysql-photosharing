@@ -5,11 +5,32 @@
         <div class="title">
             <h1>Upload a photo to Photoshare</h1>
         </div>
-            <form method="post" action="{{ url_for('upload_photo') }}">
+            <form method="POST" enctype='multipart/form-data' action="{{ url_for('upload_file') }}">
                 <label for="photo">Select photo:</label>
-                <input type="file" name="photo" required='true' /><br />
+                <input type="file" name="in-imgdata" required='true' /><br />
                 <label for="caption">Please caption:</label>
-                <input type="text" name="caption" required='true' /><br />
+                <input type="text" name="in-caption" required='true' /><br />
+                <label for="album">Select album:</label>
+                <select name="in-album" id="dropdown">
+                    <option id="new-album" value='new'>Create New Album</option>
+                    {% for album in albums %}
+                    <option value='{{album[0]}}'>{{album[1]}}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" id="new-album-input" name="in-new-album-name" placeholder="new album name" /><br />
                 <input type="submit" value="Upload" />
             </form>
     </body>
+
+<script type="text/javascript">
+    newAlbum = document.getElementById("new-album")
+    input = document.getElementById("new-album-input")
+    document.getElementById("dropdown").addEventListener("change", function(){
+        if(newAlbum.selected) {
+            input.style.display = 'inline'
+        }
+        else {
+            input.style.display = 'none'
+        }
+    })
+</script>

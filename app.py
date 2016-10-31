@@ -2,7 +2,7 @@
 # Author: Dor Rubin
 
 import flask
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, flash, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login as flask_login
 # Testing
@@ -24,8 +24,8 @@ app.debug = True
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'toor'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
-# app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
+app.config['UPLOAD_FOLDER'] = '/img'
 mysql.init_app(app)
 
 #begin code used for login
@@ -220,7 +220,6 @@ def profile(page_id):
         # embed()
         return render_template('profile.html', pageid=page_id, name=fname, friendship=connection)
     # POST Request
-    embed()
     looking_at = request.form.get('friendship')
     person_a = getUserEntryFromId(flask_login.current_user.id)[1]
     person_b = getUserEntryFromId(looking_at)[1]
@@ -299,29 +298,71 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+def getUserAlbums(uid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT album_id, name
+                FROM Albums NATURAL JOIN
+                    (SELECT album_id
+                    FROM Album_User
+                    WHERE user_id = '{0}') AS T;
+            """.format(uid)
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all user emails
 
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required
 def upload_file():
-    if request.method == 'POST':
-        uid = getUserIdFromEmail(flask_login.current_user.id)
-        imgfile = request.files['file']
+    # GET
+    if flask.request.method == 'GET':
+        user_albums = getUserAlbums(flask_login.current_user.id)
+        return render_template('upload.html', albums=user_albums)
+    # POST
+    if 'in-imgdata' not in request.files:
+        flash('no file part')
+        return redirect(flask.url_for('upload_file'))
+    file = request.files['in-imgdata']
+    if file.filename == '':
+        flash('no selected file')
+        return redirect(flask.url_for('upload_file'))
+    if file and allowed_file(file.filename):
+        imgfile = request.files['in-imgdata']
         photo_data = base64.standard_b64encode(imgfile.read())
+        user_id = flask_login.current_user.id
+        album_id = request.form.get('in-album')
+        if album_id == 'new':
+            # create a new album first
+            album_name = request.form.get('in-new-album-name')
+            query = ''' INSERT INTO Albums(name)
+                        VALUES ("{0}")
+                    '''
+            cursor = conn.cursor()
+            cursor.execute(query.format(album_name))
+            conn.commit()
+            cursor = conn.cursor()
+            cursor.execute("SELECT LAST_INSERT_ID();")
+            album_id = cursor.fetchall()[0][0]
+            query = ''' INSERT INTO Album_User(album_id, user_id)
+                        VALUES ("{0}", "{1}")
+                    '''
+            cursor = conn.cursor()
+            cursor.execute(query.format(album_id, user_id))
+            conn.commit()
+            # end if
+        caption = request.form.get('in-caption')
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Pictures (imgdata, user_id) VALUES ('{0}', '{1}' )".format(photo_data, uid))
+        query = ''' INSERT INTO Photos (imgdata, caption)
+                    VALUES ("{0}", "{1}");
+                '''
+        cursor.execute(query.format(photo_data, caption))
         conn.commit()
-    return render_template('profile.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid))
-    #The method is GET so we return a  HTML form to upload the a photo.
-    return '''
-        <!doctype html>
-        <title>Upload new Picture</title>
-        <h1>Upload new Picture</h1>
-        <form action="" method=post enctype=multipart/form-data>
-        <p><input type=file name=file>
-        <input type=submit value=Upload>
-        </form></br>
-    <a href='/'>Home</a>
-        '''
+        cursor.execute("SELECT LAST_INSERT_ID();")
+        photo_id = cursor.fetchall()[0][0]
+        cursor.execute("INSERT INTO Album_Photo (album_id, photo_id) VALUES ('{0}', '{1}' )".format(album_id, photo_id))
+        conn.commit()
+        return flask.redirect(flask.url_for('profile', page_id=user_id))
+    #The method is POST
+
 #end photo uploading code
 
 

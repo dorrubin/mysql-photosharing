@@ -69,7 +69,7 @@ Have unique photo id as primary key. Each photo needs data (a url to S3 bucket) 
 */
 CREATE TABLE Photos( 
     photo_id int4  AUTO_INCREMENT,
-    imgdata blob,
+    imgdata LONGBLOB,
     -- INDEX upid_idx (user_id),
     caption VARCHAR(255),
     CONSTRAINT photo_pk PRIMARY KEY (photo_id)
@@ -133,3 +133,6 @@ INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown
 INSERT INTO Friends(requester_email, responder_email) VALUES ('test1@bu.edu', 'test2@bu.edu');
 
 INSERT INTO Friends(requester_email, responder_email) VALUES ('foo@bu.edu', 'test1@bu.edu');
+
+INSERT INTO Albums(name) VALUES ('Test1 Album');
+INSERT INTO Album_User(album_id, user_id) VALUES (1,1);
