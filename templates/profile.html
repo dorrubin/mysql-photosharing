@@ -1,0 +1,24 @@
+<!doctype html>
+<title>Photoshare</title>
+
+
+{% if name %}
+  <h1>This is {{ name }}'s profile!</h1>
+{% endif %}
+
+{% if photos %}
+<h2>Here are their photos</h2>
+    <ul>
+    {% for photo in photos %}
+        <li><img src='data:image/png;base64, {{photo[0]}}'/></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
+<ul>
+    <li><a href='/upload'>Upload a photo</a> </li> 
+    <li><a href='/friends'>Friends</a> </li>
+    <li><a href='/logout'>Logout</a></li>
+    <li><a href='/profile'>Profile</a></li>
+</ul>
