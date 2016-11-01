@@ -15,12 +15,14 @@
     <form action='likePhoto' method='POST'>
         <button name="photo_like" type="submit" value="{{photo[0]}}">Like Photo!</button>
     </form>
+    {% if not owner %}
     <form action='commentPhoto' method='POST'>
         <label for="comment">Enter comment:</label>
         <input type="text" name="comment" />
         <input type="hidden" name="pid" value="{{photo[0]}}" />
         <input type="submit" />
     </form>
+    {% endif %}
 {% endif %}
 {% if comments %}
 <h4>Here are the comments on the photo</h4>

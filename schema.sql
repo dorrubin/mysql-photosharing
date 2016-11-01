@@ -116,7 +116,7 @@ CREATE TABLE Interactions(
     FOREIGN KEY (photo_id) REFERENCES Photos (photo_id) ON DELETE CASCADE
 );
 
-INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('anon@bu.edu', 'test', 'Anon', 'nymous', 'male', '1988-12-01', 'Chicago');
+INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('anon@bu.edu', 'test', 'Anon', 'ymous', 'male', '1988-12-01', 'Chicago');
 
 INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('test1@bu.edu', 'test', 'Testy', 'McTesterson', 'male', '1988-12-01', 'Boston');
 
