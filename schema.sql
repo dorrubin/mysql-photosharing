@@ -116,8 +116,10 @@ CREATE TABLE Interactions(
     FOREIGN KEY (photo_id) REFERENCES Photos (photo_id) ON DELETE CASCADE
 );
 
+INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('anon@bu.edu', 'test', 'Anon', 'nymous', 'male', '1988-12-01', 'Chicago');
 
 INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('test1@bu.edu', 'test', 'Testy', 'McTesterson', 'male', '1988-12-01', 'Boston');
+
 INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('test2@bu.edu', 'test', 'Sir', 'TestAlot', 'female', '1988-11-01', 'Boston');
 
 INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('foo@bu.edu', 'jk', 'Foo', 'Bar', 'other', '1938-3-02', 'Portland');
@@ -127,4 +129,12 @@ INSERT INTO Friends(requester_email, responder_email) VALUES ('test1@bu.edu', 't
 INSERT INTO Friends(requester_email, responder_email) VALUES ('foo@bu.edu', 'test1@bu.edu');
 
 INSERT INTO Albums(name) VALUES ('Test1 Album');
-INSERT INTO Album_User(album_id, user_id) VALUES (1,1);
+INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
+
+
+SELECT comment, first_name, last_name
+FROM Interactions NATURAL JOIN
+(SELECT *
+FROM Users) AS T
+WHERE photo_id = '1'
+AND comment IS NOT NULL;

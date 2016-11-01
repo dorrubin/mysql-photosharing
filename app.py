@@ -311,34 +311,78 @@ def delete_album(page_id):
                 """.format(album_id)
         cursor.execute(query)
         conn.commit()
-        # embed()
     return flask.redirect(flask.url_for('profile', page_id=user_id))
+
+
+def getCommentsFromPhotoId(pid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT comment, first_name, last_name
+                FROM Interactions NATURAL JOIN
+                    (SELECT *
+                    FROM Users) AS T
+                WHERE photo_id = '{0}'
+                AND comment IS NOT NULL;
+            """.format(pid)
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all photos in that album
 
 
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['GET'])
 def photos(album_id, photo_id):
     if flask.request.method == 'GET':
-        user_id = 0
+        user_id = 1
         if not flask_login.current_user.is_anonymous:
             user_id = flask_login.current_user.id
         album_owner = ownsAlbum(user_id, album_id)
         user_photo = getPhotoFromPhotoId(photo_id)
-        return render_template('photo.html', photo=user_photo, owner=album_owner)
+        all_comments = getCommentsFromPhotoId(photo_id)
+        return render_template('photo.html', photo=user_photo, owner=album_owner, comments=all_comments)
 
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['POST'])
-def delete_photo(album_id, photo_id):
-    if flask.request.method == 'POST':
-        photo_id = request.form.get('photo_deletion')
+def interact_photo(album_id, photo_id):
+    user_id = 1
+    if not flask_login.current_user.is_anonymous:
+        user_id = flask_login.current_user.id
+    delete_photo_id = request.form.get('photo_deletion')
+    like_photo_id = request.form.get('photo_like')
+    comment_photo_id = request.form.get('pid')
+    if delete_photo_id:
         cursor = conn.cursor()
         # get user email of users who are not friends with the logged in user
         query = """ DELETE
                     FROM Photos
                     WHERE photo_id = '{0}';
-                """.format(photo_id)
+                """.format(delete_photo_id)
         cursor.execute(query)
         conn.commit()
-        # embed()
-    return flask.redirect(flask.url_for('albums', page_id=album_id))
+        return flask.redirect(flask.url_for('albums', page_id=album_id))
+    elif like_photo_id:
+        cursor = conn.cursor()
+        query = """ UPDATE Photos
+                    SET likes = likes + 1
+                    WHERE photo_id = '{0}';
+                """.format(like_photo_id)
+        cursor.execute(query)
+        conn.commit()
+        # update interactivity
+        cursor = conn.cursor()
+        query = """ INSERT INTO Interactions (user_id, photo_id, likes)
+                    VALUES ("{0}", "{1}", "{2}");
+                """.format(user_id, like_photo_id, 1)
+        cursor.execute(query)
+        conn.commit()
+        return flask.redirect(flask.url_for('photos', album_id=album_id, photo_id=like_photo_id))
+    elif comment_photo_id:
+        comment = request.form.get('comment')
+        # update interactivity
+        cursor = conn.cursor()
+        query = """ INSERT INTO Interactions (user_id, photo_id, comment)
+                    VALUES ("{0}", "{1}", "{2}");
+                """.format(user_id, comment_photo_id, comment)
+        cursor.execute(query)
+        conn.commit()
+        return flask.redirect(flask.url_for('photos', album_id=album_id, photo_id=comment_photo_id))
 
 
 def getAllUserFriends(email):

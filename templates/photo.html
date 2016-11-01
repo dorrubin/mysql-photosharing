@@ -3,14 +3,35 @@
 
 
 <h2>This is the individual photo</h2>
+{% if owner %}
+<form action='deletePhoto' method='POST'>
+    <button name="photo_deletion" type="submit" value="{{photo[0]}}">Delete Photo!</button>
+</form>
+{% endif %}
 {% if photo %}
     <p>{{photo[3]}}</p>
     <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
-    {% if owner %}
-    <form action='deletePhoto' method='POST'>
-        <button name="photo_deletion" type="submit" value="{{photo[0]}}">Delete Photo!</button>
+    <p>Number of likes: {{photo[2]}}</p>
+    <form action='likePhoto' method='POST'>
+        <button name="photo_like" type="submit" value="{{photo[0]}}">Like Photo!</button>
     </form>
-    {% endif %}
+    <form action='commentPhoto' method='POST'>
+        <label for="comment">Enter comment:</label>
+        <input type="text" name="comment" />
+        <input type="hidden" name="pid" value="{{photo[0]}}" />
+        <input type="submit" />
+    </form>
+{% endif %}
+{% if comments %}
+<h4>Here are the comments on the photo</h4>
+    <ul>
+    {% for comment in comments %}
+        <li>
+            <blockquote>{{comment[0]}}</blockquote>
+            <p>by: {{comment[1]}} {{comment[2]}}</p>
+        </li>
+    {% endfor %}
+    </ul>
 {% endif %}
 
 
