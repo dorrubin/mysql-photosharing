@@ -512,6 +512,26 @@ def upload_file():
 #end photo uploading code
 
 
+def getTopTen():
+    cursor = conn.cursor()
+    query = """ SELECT email, count(likes), count(comment), count(interaction_id)
+                FROM Interactions NATURAL JOIN
+                    (SELECT *
+                    FROM Users) AS T
+                GROUP BY user_id
+                ORDER BY count(interaction_id) DESC
+                LIMIT 10;
+            """
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all user emails
+
+
+@app.route("/statistics", methods=['GET'])
+def stats():
+    ordered_ten = getTopTen()
+    return render_template('stats.html', ranking=ordered_ten)
+
+
 #default page
 @app.route("/", methods=['GET'])
 def hello():

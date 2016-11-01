@@ -18,12 +18,12 @@ Todo:
 ~~8. Users can delete own albums and photos~~
 ~~9. Liking a picture~~  
 ~~10. Both registered and anonymous users can leave comments. Users cannot leave comments for their own photos~~  
-6. Top 10 user statistic page  
-10. Tag your own particular photos and then search by them  
-11. Search by tags for all photos  
-12. View most popular tags  
-13. multiple tag search
-14. recommended photos (take 5 most commonly used tags and find photos that also have those tags)
+~~11. Top 10 user statistic page~~  
+12. Tag your own particular photos and then search by them  
+13. Search by tags for all photos  
+14. View most popular tags  
+16. multiple tag search
+15. recommended photos (take 5 most commonly used tags and find photos that also have those tags)
 15. recommended tags (take a tag or multiple as input, find the most common tags in other photos)
 9. test the delete function on comments and likes etc
 8. Fix bug where blob isn't converted to image

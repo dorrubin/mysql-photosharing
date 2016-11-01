@@ -132,9 +132,3 @@ INSERT INTO Albums(name) VALUES ('Test1 Album');
 INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
 
 
-SELECT comment, first_name, last_name
-FROM Interactions NATURAL JOIN
-(SELECT *
-FROM Users) AS T
-WHERE photo_id = '1'
-AND comment IS NOT NULL;

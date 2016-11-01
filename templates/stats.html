@@ -1,0 +1,29 @@
+<!doctype html>
+
+<title>Photoshare</title>
+
+<h2>Top 10 users are:</h2>
+{% if ranking %}
+<table>
+    <tr>
+        <th>Email</th>
+        <th>Number Likes</th>
+        <th>Number Comments</th>
+        <th>Total Engagements</th>
+    </tr>
+    {% for rank in ranking %}
+    <tr>
+        <td>{{rank[0]}}</td>
+        <td>{{rank[1]}}</td>
+        <td>{{rank[2]}}</td>
+        <td>{{rank[3]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<hr>
+<ul>
+    <li><a href='/'>Home</a></li>
+    <li><a href='/register'>register</a> </li>
+</ul>
