@@ -108,7 +108,7 @@ def login():
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return render_template('hello.html', message='Logged out')
+    return flask.redirect(flask.url_for('hello'))
 
 
 @login_manager.unauthorized_handler
@@ -212,6 +212,17 @@ def ownsAlbum(uid, aid):
     else:
         result = False
     return result  # 0 if not friends and 1 if yes
+
+
+def getAllAlbums():
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT album_id, name
+                FROM Albums;
+            """
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all user emails
+
 
 def getUserAlbums(uid):
     cursor = conn.cursor()
@@ -452,7 +463,8 @@ def upload_file():
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-    return render_template('hello.html', message='Welecome to Photoshare')
+    all_albums = getAllAlbums()
+    return render_template('hello.html', albums=all_albums)
 
 
 if __name__ == "__main__":

@@ -5,3 +5,11 @@
 <p>You should <a href='/login'>login!</a></p>
 <p>You should <a href='/register'>register!</a></p>
 
+{% if albums %}
+<h2>Browswe through some albums</h2>
+    <ul>
+    {% for album in albums %}
+        <li><a href="/albums/{{album[0]}}">{{album[1]}}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
