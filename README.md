@@ -19,12 +19,14 @@ Todo:
 ~~9. Liking a picture~~  
 ~~10. Both registered and anonymous users can leave comments. Users cannot leave comments for their own photos~~  
 ~~11. Top 10 user statistic page~~  
-12. Tag your own particular photos and then search by them  
-13. Search by tags for all photos  
+~~12. Tag your own particular photos and then 
+~~13. Search by tags for all photos~~  
 14. View most popular tags  
 16. multiple tag search
 15. recommended photos (take 5 most commonly used tags and find photos that also have those tags)
 15. recommended tags (take a tag or multiple as input, find the most common tags in other photos)
 9. test the delete function on comments and likes etc
+16. test the stats page
+14. Update tag click to show only users tags whereas tag search shows all users
 8. Fix bug where blob isn't converted to image
     --> <li><img src='data:image/png;base64, {{photo[1]}}'/></li>

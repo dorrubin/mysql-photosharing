@@ -15,6 +15,12 @@
     <form action='likePhoto' method='POST'>
         <button name="photo_like" type="submit" value="{{photo[0]}}">Like Photo!</button>
     </form>
+    <form action='tagPhoto' method='POST'>
+        <label for="tag">Enter tags:</label>
+        <input type="text" name="tag" />
+        <input type="hidden" name="photo_tag" value="{{photo[0]}}" />
+        <input type="submit" />
+    </form>
     {% if not owner %}
     <form action='commentPhoto' method='POST'>
         <label for="comment">Enter comment:</label>
@@ -24,6 +30,14 @@
     </form>
     {% endif %}
 {% endif %}
+{% if tags %}
+<h4>Here are the tags on the photo</h4>
+    <p>Tags: </p>
+    {% for tag in tags %}
+            <span> <a href="/tags/{{tag[0]}}">{{tag[0]}}</a> </span>
+    {% endfor %}
+{% endif %}
+
 {% if comments %}
 <h4>Here are the comments on the photo</h4>
     <ul>

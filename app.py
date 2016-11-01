@@ -327,6 +327,15 @@ def getCommentsFromPhotoId(pid):
     cursor.execute(query)
     return cursor.fetchall()  # returns all photos in that album
 
+def getTagsFromPhotoId(pid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT word
+                FROM Photo_Tag
+                WHERE photo_id = '{0}'
+            """.format(pid)
+    cursor.execute(query)
+    return cursor.fetchall()  # returns all photos in that album
 
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['GET'])
 def photos(album_id, photo_id):
@@ -337,7 +346,8 @@ def photos(album_id, photo_id):
         album_owner = ownsAlbum(user_id, album_id)
         user_photo = getPhotoFromPhotoId(photo_id)
         all_comments = getCommentsFromPhotoId(photo_id)
-        return render_template('photo.html', photo=user_photo, owner=album_owner, comments=all_comments)
+        all_tags = getTagsFromPhotoId(photo_id)
+        return render_template('photo.html', photo=user_photo, owner=album_owner, comments=all_comments, tags=all_tags)
 
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['POST'])
 def interact_photo(album_id, photo_id):
@@ -347,6 +357,7 @@ def interact_photo(album_id, photo_id):
     delete_photo_id = request.form.get('photo_deletion')
     like_photo_id = request.form.get('photo_like')
     comment_photo_id = request.form.get('pid')
+    tag_photo_id = request.form.get('photo_tag')
     if delete_photo_id:
         cursor = conn.cursor()
         # get user email of users who are not friends with the logged in user
@@ -383,7 +394,33 @@ def interact_photo(album_id, photo_id):
         cursor.execute(query)
         conn.commit()
         return flask.redirect(flask.url_for('photos', album_id=album_id, photo_id=comment_photo_id))
+    elif tag_photo_id:
+        raw_tags = request.form.get('tag')
+        tags = raw_tags.split()
+        for tag in tags:
+            addTagToTable(tag)
+            connectTagToPhoto(tag_photo_id, tag)
+        return flask.redirect(flask.url_for('photos', album_id=album_id, photo_id=tag_photo_id))
 
+
+def connectTagToPhoto(pid, tag):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = ''' INSERT IGNORE INTO Photo_Tag(photo_id, word)
+                VALUES ("{0}", "{1}")
+            '''.format(pid, tag)
+    cursor.execute(query)
+    conn.commit()
+
+
+def addTagToTable(tag):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = ''' INSERT IGNORE INTO Tags(word)
+                VALUES ("{0}")
+            '''.format(tag)
+    cursor.execute(query)
+    conn.commit()
 
 def getAllUserFriends(email):
     cursor = conn.cursor()
@@ -532,7 +569,34 @@ def stats():
     return render_template('stats.html', ranking=ordered_ten)
 
 
-#default page
+def getPhotosFromTag(tag):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT *
+                FROM Photos NATURAL JOIN
+                    (SELECT photo_id
+                    FROM Photo_Tag
+                    WHERE word = '{0}') AS T;
+            """.format(tag)
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@app.route('/tags', methods=['GET', 'POST'])
+def tags():
+    if flask.request.method == 'GET':
+        return render_template('tags.html')
+    tag = flask.request.form['tag_search']
+    return flask.redirect(flask.url_for('specific_tag', page_id=tag))
+
+
+@app.route('/tags/<page_id>', methods=['GET'])
+def specific_tag(page_id):
+    if flask.request.method == 'GET':
+        tagged_photos = getPhotosFromTag(page_id)
+        return render_template('tags.html', pageid=page_id, photos=tagged_photos)
+
+
 @app.route("/", methods=['GET'])
 def hello():
     all_albums = getAllAlbums()

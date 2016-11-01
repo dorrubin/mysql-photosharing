@@ -1,0 +1,37 @@
+<!doctype html>
+
+<title>Photoshare</title>
+
+<h2>Search for tags</h2>
+
+
+{% if photos and pageid %}
+    <ul>
+        {% for photo in photos %}
+        <li>
+            <a href="/albums/{{pageid}}/photos/{{photo[0]}}">
+                <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+            </a>
+            <br>
+            <caption>{{photo[3]}}</caption>
+        </li>
+    {% endfor %}
+    </ul>
+    {% elif not photos and not pageid %}
+    <form action='tags' method='POST'>
+        <label for="tag_search">Search for tags:</label>
+        <input type='text' name='tag_search' placeholder='boo'></input>
+        <input type='submit' name='submit'></input>
+    </form>
+    {% else %}
+    <p>Sorry no pictures to show here</p>
+{% endif %}
+
+<hr>
+<ul>
+    <li><a href='/'>Home</a></li>
+    <li><a href='/tags'>Search Tags</a> </li>
+    <li><a href='/register'>Register</a> </li>
+
+</ul>
+
