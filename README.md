@@ -15,9 +15,10 @@ Todo:
 ~~5. Show all friends~~  
 ~~6. Photo and album creation only after registration~~  
 ~~7. All visitor Photo and album browsing~~  
-14. Both registered and anonymous users can leave comments. Users cannot leave comments for their own photos  
+~~8. Users can delete own albums and photos~~
 15. Liking a picture
-8. Users can delete own albums and photos -- deleting album cascades to delete photos
+14. Both registered and anonymous users can leave comments. Users cannot leave comments for their own photos  
+9. test the delete function on comments and likes etc
 8. Fix bug where blob isn't converted to image
     --> <li><img src='data:image/png;base64, {{photo[1]}}'/></li>
 6. Top 10 user statistic page  

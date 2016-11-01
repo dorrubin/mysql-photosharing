@@ -197,6 +197,21 @@ def areFriends(user_email, friend_email):
         result = False
     return result  # 0 if not friends and 1 if yes
 
+def ownsAlbum(uid, aid):
+    cursor = conn.cursor()
+    # get user email of users who are not friends with the logged in user
+    query = """ SELECT album_id
+                FROM Album_User
+                WHERE user_id = '{0}'
+                AND album_id = '{1}';
+            """.format(uid, aid)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    if len(data):
+        result = True
+    else:
+        result = False
+    return result  # 0 if not friends and 1 if yes
 
 def getUserAlbums(uid):
     cursor = conn.cursor()
@@ -232,11 +247,13 @@ def getPhotoFromPhotoId(pid):
     cursor.execute(query)
     return cursor.fetchall()[0]  # returns all photos in that album
 
+
 @app.route('/profile', methods=['GET'])
 @flask_login.login_required
 def own_profile():
     user_id = flask_login.current_user.id
     return flask.redirect(flask.url_for('profile', page_id=user_id))
+
 
 @app.route('/profile/<page_id>', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -257,18 +274,53 @@ def profile(page_id):
     conn.commit()
     return flask.redirect(flask.url_for('friends'))
 
+
 @app.route('/albums/<page_id>', methods=['GET'])
 def albums(page_id):
     if flask.request.method == 'GET':
+        album_owner = ownsAlbum(flask_login.current_user.id, page_id)
         album_photos = getAlbumPhotos(page_id)
-        return render_template('albums.html', pageid=page_id, photos=album_photos)
+        return render_template('albums.html', pageid=page_id, photos=album_photos, owner=album_owner)
+
+@app.route('/albums/<page_id>', methods=['POST'])
+def delete_album(page_id):
+    if flask.request.method == 'POST':
+        album_id = request.form.get('album_deletion')
+        user_id = flask_login.current_user.id
+        cursor = conn.cursor()
+        # get user email of users who are not friends with the logged in user
+        query = """ DELETE
+                    FROM Albums
+                    WHERE album_id = '{0}';
+                """.format(album_id)
+        cursor.execute(query)
+        conn.commit()
+        # embed()
+    return flask.redirect(flask.url_for('profile', page_id=user_id))
+
 
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['GET'])
 def photos(album_id, photo_id):
     if flask.request.method == 'GET':
+        album_owner = ownsAlbum(flask_login.current_user.id, album_id)
         user_photo = getPhotoFromPhotoId(photo_id)
+        return render_template('photo.html', photo=user_photo, owner=album_owner)
+
+@app.route('/albums/<album_id>/photos/<photo_id>', methods=['POST'])
+def delete_photo(album_id, photo_id):
+    if flask.request.method == 'POST':
+        photo_id = request.form.get('photo_deletion')
+        cursor = conn.cursor()
+        # get user email of users who are not friends with the logged in user
+        query = """ DELETE
+                    FROM Photos
+                    WHERE photo_id = '{0}';
+                """.format(photo_id)
+        cursor.execute(query)
+        conn.commit()
         # embed()
-        return render_template('photo.html', photo=user_photo)
+    return flask.redirect(flask.url_for('albums', page_id=album_id))
+
 
 def getAllUserFriends(email):
     cursor = conn.cursor()

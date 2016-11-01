@@ -1,15 +1,6 @@
 DROP DATABASE photoshare;
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
--- DROP TABLE IF EXISTS Users CASCADE;
--- DROP TABLE IF EXISTS Friends CASCADE;
--- DROP TABLE IF EXISTS Albums CASCADE;
--- DROP TABLE IF EXISTS Album_User CASCADE;
--- DROP TABLE IF EXISTS Photos CASCADE;
--- DROP TABLE IF EXISTS Album_Photo CASCADE;
--- DROP TABLE IF EXISTS Tags CASCADE;
--- DROP TABLE IF EXISTS Photo_Tag CASCADE;
--- DROP TABLE IF EXISTS Comments CASCADE;
 
 /*
 Users - Entity:
@@ -58,7 +49,7 @@ CREATE TABLE Album_User(
     album_id int4,
     user_id int4,
     PRIMARY KEY (user_id, album_id),
-    FOREIGN KEY (album_id) REFERENCES Albums(album_id),
+    FOREIGN KEY (album_id) REFERENCES Albums(album_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
@@ -84,8 +75,8 @@ CREATE TABLE Album_Photo(
     album_id int4,
     photo_id int4,
     CONSTRAINT album_photo_pk PRIMARY KEY (album_id, photo_id),
-    FOREIGN KEY (album_id) REFERENCES Albums(album_id),
-    FOREIGN KEY (photo_id) REFERENCES Photos(photo_id)
+    FOREIGN KEY (album_id) REFERENCES Albums(album_id) ON DELETE CASCADE,
+    FOREIGN KEY (photo_id) REFERENCES Photos(photo_id) ON DELETE CASCADE
 );
 
 /*
@@ -105,23 +96,24 @@ CREATE TABLE Photo_Tag(
     photo_id int4,
     word VARCHAR(255),
     CONSTRAINT photo_tag_pk PRIMARY KEY (photo_id, word),
-    FOREIGN KEY (photo_id) REFERENCES Photos(photo_id),
+    FOREIGN KEY (photo_id) REFERENCES Photos(photo_id) ON DELETE CASCADE,
     FOREIGN KEY (word) REFERENCES Tags(word)
 );
 
 /*
-Comments - Relationship:
+Interaction - Relationship:
 Like photo_tag, comments can only be made with a complete tuple of user_id and photo_id. Assuming that comments can only be made on photos. Has a comment_id as primary key to easily differentiate between comments made on the same day.
 */
-CREATE TABLE Comments(
-    comment_id int4 AUTO_INCREMENT,
-    user_id int4 NOT NULL,
+CREATE TABLE Interactions(
+    interaction_id int4 AUTO_INCREMENT,
+    user_id int4,
     photo_id int4 NOT NULL,
-    text VARCHAR(255) NOT NULL,
+    comment VARCHAR(255),
+    likes INT DEFAULT 0,
     time_created TIMESTAMP,
-    CONSTRAINT comment_pk PRIMARY KEY (comment_id),
+    CONSTRAINT interaction_pk PRIMARY KEY (interaction_id),
     FOREIGN KEY (user_id) REFERENCES Users (user_id),
-    FOREIGN KEY (photo_id) REFERENCES Photos (photo_id)
+    FOREIGN KEY (photo_id) REFERENCES Photos (photo_id) ON DELETE CASCADE
 );
 
 

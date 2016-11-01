@@ -4,12 +4,13 @@
 
 <h2>This is the individual photo</h2>
 {% if photo %}
-    <ul>
-        <li>
-            <p>{{photo[3]}}</p>
-            <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
-        </li>
-    </ul>
+    <p>{{photo[3]}}</p>
+    <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+    {% if owner %}
+    <form action='deletePhoto' method='POST'>
+        <button name="photo_deletion" type="submit" value="{{photo[0]}}">Delete Photo!</button>
+    </form>
+    {% endif %}
 {% endif %}
 
 

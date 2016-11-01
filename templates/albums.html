@@ -3,13 +3,21 @@
 
 
 <h2>Here are their photos</h2>
+{% if owner %}
+<form action='deleteAlbum' method='POST'>
+    <button name="album_deletion" type="submit" value="{{pageid}}">Delete Album!</button>
+</form>
+{% endif %}        
 {% if photos %}
     <ul>
     {% for photo in photos %}
-        <caption>{{photo[3]}}</caption>
-        <a href="/albums/{{pageid}}/photos/{{photo[0]}}">
-            <li><img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/></li>
-        </a>
+        <li>
+            <a href="/albums/{{pageid}}/photos/{{photo[0]}}">
+                <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+            </a>
+            <br>
+            <caption>{{photo[3]}}</caption>
+        </li>
     {% endfor %}
     </ul>
 {% endif %}
