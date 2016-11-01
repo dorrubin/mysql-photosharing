@@ -289,7 +289,10 @@ def profile(page_id):
 @app.route('/albums/<page_id>', methods=['GET'])
 def albums(page_id):
     if flask.request.method == 'GET':
-        album_owner = ownsAlbum(flask_login.current_user.id, page_id)
+        user_id = 0
+        if not flask_login.current_user.is_anonymous:
+            user_id = flask_login.current_user.id
+        album_owner = ownsAlbum(user_id, page_id)
         album_photos = getAlbumPhotos(page_id)
         return render_template('albums.html', pageid=page_id, photos=album_photos, owner=album_owner)
 
@@ -297,7 +300,9 @@ def albums(page_id):
 def delete_album(page_id):
     if flask.request.method == 'POST':
         album_id = request.form.get('album_deletion')
-        user_id = flask_login.current_user.id
+        user_id = 0
+        if not flask_login.current_user.is_anonymous:
+            user_id = flask_login.current_user.id
         cursor = conn.cursor()
         # get user email of users who are not friends with the logged in user
         query = """ DELETE
@@ -313,7 +318,10 @@ def delete_album(page_id):
 @app.route('/albums/<album_id>/photos/<photo_id>', methods=['GET'])
 def photos(album_id, photo_id):
     if flask.request.method == 'GET':
-        album_owner = ownsAlbum(flask_login.current_user.id, album_id)
+        user_id = 0
+        if not flask_login.current_user.is_anonymous:
+            user_id = flask_login.current_user.id
+        album_owner = ownsAlbum(user_id, album_id)
         user_photo = getPhotoFromPhotoId(photo_id)
         return render_template('photo.html', photo=user_photo, owner=album_owner)
 
