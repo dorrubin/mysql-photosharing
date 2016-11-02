@@ -566,7 +566,25 @@ def stats():
 def getMostPopularTags():
     cursor = conn.cursor()
     query = """ SELECT word, count(word)
-                FROM Photo_Tag
+                FROM Photo_Tag NATURAL JOIN (SELECT photo_id
+                    FROM Album_Photo NATURAL JOIN (SELECT album_id
+                        FROM Album_User
+                        WHERE user_id = '{0}') AS A) AS B
+                GROUP BY word
+                ORDER BY count(word) DESC
+                LIMIT 5;
+            """
+    cursor.execute(query)
+    return cursor.fetchall()  # returns top 10 users
+
+
+def getUsersMostPopularTags(uid):
+    cursor = conn.cursor()
+    query = """ SELECT word, count(word)
+                FROM Photo_Tag NATURAL JOIN (SELECT photo_id
+                    FROM Album_Photo NATURAL JOIN (SELECT album_id
+                        FROM Album_User
+                        WHERE user_id = 2) AS A) AS B
                 GROUP BY word
                 ORDER BY count(word) DESC
                 LIMIT 5;
@@ -596,6 +614,7 @@ def getPhotosFromMultipleTags(tags):
             """.format(middle)
     cursor.execute(query)
     return cursor.fetchall()
+
 
 @app.route('/tags', methods=['GET', 'POST'])
 def tags():
@@ -634,21 +653,61 @@ def getRecoFromMultipleTags(tags):
                     {0}
                 ) AS C) AS D
                 GROUP BY word
-                ORDER BY count(word) DESC;
+                ORDER BY count(word) DESC
                 LIMIT 5;
             """.format(middle)
     cursor.execute(query)
     return cursor.fetchall()
 
-@app.route('/recommendations', methods=['GET', 'POST'])
-def reco():
+
+@app.route('/recommendations/tags', methods=['GET', 'POST'])
+def tagreco():
     if flask.request.method == 'GET':
-        return render_template('recommendations.html')
+        return render_template('reco_tags.html')
     raw_tags = flask.request.form['tag_reco']
     list_tags = raw_tags.split()
     tags = '+'.join(list_tags)
     user_reco = getRecoFromMultipleTags(tags)
-    return render_template('recommendations.html', recos=user_reco)
+    return render_template('reco_tags.html', tagrecos=user_reco)
+
+@app.route('/recommendations/photos', methods=['GET', 'POST'])
+def photoreco():
+    if flask.request.method == 'GET':
+        # look at the most common tags of photos uploaded by the user
+        user_id = 0
+        if not flask_login.current_user.is_anonymous:
+            user_id = flask_login.current_user.id
+        user_tags = getUsersMostPopularTags(user_id)
+        # find other photos that have those tags
+        list_tags = []
+        for t in user_tags:
+            list_tags.append(t[0])
+        reco_photo = getRecoPhotosFromTags(list_tags)
+        return render_template('reco_photos.html', tagrecos=user_tags)
+
+def getRecoPhotosFromTags(tags):
+    queries = []
+    for i in range(len(tags)):
+        # get user email of users who are not friends with the logged in user
+        temp = """  (SELECT photo_id
+                    FROM Photo_Tag
+                    WHERE word = '{0}')
+                """.format(tags[i])
+        queries.append(temp)
+    #end for
+    middle = 'UNION \n'.join(queries)
+    # CHANGE QUERY TO SELECT *  IN TOP LINE -- UPDATE CONTROLLER TO TAKE AND DISPLAY PHOTO
+    query = """ SELECT photo_id, caption, count(photo_id)
+                FROM Photos NATURAL JOIN
+                (SELECT photo_id FROM(
+                    {0}
+                ) AS C) AS D
+                GROUP BY photo_id
+                ORDER BY count(photo_id) DESC
+                LIMIT 5;
+            """.format(middle)
+    cursor.execute(query)
+    return cursor.fetchall()
 
 
 @app.route("/", methods=['GET'])

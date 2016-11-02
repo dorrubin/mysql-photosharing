@@ -1,0 +1,31 @@
+<!doctype html>
+
+<title>Photoshare</title>
+
+<h2>Get photo recommendations</h2>
+
+
+<form action='tags' method='POST'>
+    <label for="tag_reco">Search by tags:</label>
+    <input type='text' name='tag_reco' placeholder='cat'></input>
+    <input type='submit' name='submit'></input>
+</form>
+
+{% if tagrecos %}
+    <ol>
+    {% for reco in tagrecos %}
+        <li>
+            <p>{{reco[0]}} --- {{reco[1]}}</p>
+        </li>
+    {% endfor %}
+    </ol>
+{% endif %}
+
+<hr>
+<ul>
+    <li><a href='/'>Home</a></li>
+    <li><a href='/tags'>Search Tags</a> </li>
+    <li><a href='/register'>Register</a> </li>
+
+</ul>
+

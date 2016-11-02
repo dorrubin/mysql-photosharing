@@ -5,15 +5,15 @@
 <h2>Get tag recommendations</h2>
 
 
-<form action='recommendations' method='POST'>
+<form action='tags' method='POST'>
     <label for="tag_reco">Search by tags:</label>
     <input type='text' name='tag_reco' placeholder='cat'></input>
     <input type='submit' name='submit'></input>
 </form>
 
-{% if recos %}
+{% if tagrecos %}
     <ol>
-    {% for reco in recos %}
+    {% for reco in tagrecos %}
         <li>
             <p>{{reco[0]}} --- {{reco[1]}}</p>
         </li>

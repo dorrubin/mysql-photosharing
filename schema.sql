@@ -152,16 +152,25 @@ INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
 -- GROUP BY word
 -- ORDER BY count(word) DESC;
 
-SELECT word, count(word)
-FROM Photo_Tag NATURAL JOIN
-(SELECT DISTINCT photo_id FROM(
-    (SELECT photo_id
-    FROM Photo_Tag
-    WHERE word = 'cat')
-    UNION
-    (SELECT photo_id
-    FROM Photo_Tag
-    WHERE word = 'mouse')
-) AS C) AS D
-GROUP BY word
-ORDER BY count(word) DESC;
+-- SELECT word, count(word)
+-- FROM Photo_Tag NATURAL JOIN
+-- (SELECT DISTINCT photo_id FROM(
+--     (SELECT photo_id
+--     FROM Photo_Tag
+--     WHERE word = 'cat')
+--     UNION
+--     (SELECT photo_id
+--     FROM Photo_Tag
+--     WHERE word = 'mouse')
+-- ) AS C) AS D
+-- GROUP BY word
+-- ORDER BY count(word) DESC;
+
+-- SELECT word, count(word)
+-- FROM Photo_Tag NATURAL JOIN (SELECT photo_id
+--     FROM Album_Photo NATURAL JOIN (SELECT album_id
+--         FROM Album_User
+--         WHERE user_id = 2) AS A) AS B
+-- GROUP BY word
+-- ORDER BY count(word) DESC
+-- LIMIT 5;
