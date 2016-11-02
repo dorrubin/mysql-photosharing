@@ -697,15 +697,15 @@ def photoreco():
         for t in user_tags:
             list_tags.append(t[0])
         reco_photo = getRecoPhotosFromTags(list_tags, user_id)
-        embed()
-        return render_template('reco_photos.html', photorecos=reco_photo)
+        sorted_by_matches = sorted(reco_photo, key=lambda tup:tup[5], reverse=True)
+        return render_template('reco_photos.html', photorecos=sorted_by_matches)
 
 
 def getRecoPhotosFromTags(tags, uid):
     queries = []
     for i in range(len(tags)):
         # get user email of users who are not friends with the logged in user
-        temp = """  (SELECT photo_id
+        temp = """  (SELECT *
                     FROM Photo_Tag
                     WHERE word = '{0}')
                 """.format(tags[i])
@@ -724,19 +724,20 @@ def getRecoPhotosFromTags(tags, uid):
                         (
                             SELECT *
                             FROM Album_Photo NATURAL JOIN
-                                (SELECT * FROM
-                                    (
-                                        {0}
-                                    ) AS C
-                                ) AS D
+                            (
+                                SELECT * FROM
+                                (
+                                    {0}
+                                ) AS C
+                            ) AS D
                         ) AS E
                         WHERE user_id != '{1}'
                         GROUP BY photo_id
                         ORDER BY count(photo_id) DESC
                         LIMIT 5
                     ) AS F
-                ) AS G;""".format(middle, uid)
-    embed()
+                ) AS G
+                ;""".format(middle, uid)
     cursor.execute(query)
     return cursor.fetchall()
 

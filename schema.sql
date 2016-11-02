@@ -179,34 +179,38 @@ RAW QUERY TESTING
 -- ORDER BY count(word) DESC
 -- LIMIT 5;
 
--- SELECT *
--- FROM Album_Photo NATURAL JOIN
--- (
---     SELECT *
---     FROM Photos NATURAL JOIN
---     (
---         SELECT photo_id, count(photo_id)
---         FROM Album_User NATURAL JOIN(
---             SELECT *  
---             FROM Album_Photo NATURAL JOIN
---                 (SELECT * FROM(
---                     (SELECT *
---                     FROM Photo_Tag
---                     WHERE word = 'cat')
---                     UNION 
---                     (SELECT *
---                     FROM Photo_Tag
---                     WHERE word = 'farm')
---                     UNION 
---                     (SELECT *
---                     FROM Photo_Tag
---                     WHERE word = 'nice')
---                     ) AS C) AS D
---         ) AS E
---         WHERE user_id != 5
---         GROUP BY photo_id
---         ORDER BY count(photo_id) DESC
---         LIMIT 5
---     ) AS F
--- ) AS G;
+
+
+SELECT *
+FROM Photos NATURAL JOIN
+(
+    SELECT photo_id, count(photo_id)
+    FROM Album_User NATURAL JOIN
+    (
+        SELECT *  
+        FROM Album_Photo NATURAL JOIN
+        (
+            SELECT * FROM
+            (
+                (SELECT *
+                FROM Photo_Tag
+                WHERE word = 'cat')
+                UNION 
+                (SELECT *
+                FROM Photo_Tag
+                WHERE word = 'farm')
+                UNION 
+                (SELECT *
+                FROM Photo_Tag
+                WHERE word = 'nice')
+            ) AS C
+        ) AS D
+    ) AS E
+    WHERE user_id != 5
+    GROUP BY photo_id
+    ORDER BY count(photo_id) DESC
+    LIMIT 5
+) AS F;  
+
+
 
