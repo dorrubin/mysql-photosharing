@@ -19,7 +19,6 @@ app.secret_key = 'super secret string'  # Change this!
 app.debug = True
 
 
-
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'toor'
@@ -49,12 +48,15 @@ class User(flask_login.UserMixin):
 
 
 @login_manager.user_loader
-def user_loader(email):
+def user_loader(in_id):
+    print("user_loader")
     users = getUserList()
+    email = getUserEmailFromId(in_id)
     if not(email) or email not in str(users):
         return
     user = User()
-    user.id = email
+    user.id = in_id
+    user.email = email
     return user
 
 
@@ -98,7 +100,8 @@ def login():
             user_id = getUserIdFromEmail(email)
             user.id = user_id
             flask_login.login_user(user)  # okay login in user
-            return flask.redirect(flask.url_for('profile', page_id=user_id))
+            print("login")
+            return flask.redirect(flask.url_for('own_profile'))
 
     #information did not match
     return "<a href='/login'>Try again</a>\
@@ -153,6 +156,12 @@ def getUserIdFromEmail(email):
     return cursor.fetchone()[0]
 
 
+def getUserEmailFromId(in_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT email  FROM Users WHERE user_id = '{0}'".format(in_id))
+    return cursor.fetchone()[0]
+
+
 def getUserEntryFromId(uid):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users WHERE user_id = '{0}'".format(uid))
@@ -190,6 +199,7 @@ def areFriends(user_email, friend_email):
     else:
         result = False
     return result  # 0 if not friends and 1 if yes
+
 
 def ownsAlbum(uid, aid):
     cursor = conn.cursor()
@@ -230,6 +240,7 @@ def getUserAlbums(uid):
     cursor.execute(query)
     return cursor.fetchall()  # returns all user emails
 
+
 def getAlbumPhotos(aid):
     cursor = conn.cursor()
     # get user email of users who are not friends with the logged in user
@@ -241,6 +252,7 @@ def getAlbumPhotos(aid):
             """.format(aid)
     cursor.execute(query)
     return cursor.fetchall()  # returns all photos in that album
+
 
 def getPhotoFromPhotoId(pid):
     cursor = conn.cursor()
@@ -256,6 +268,7 @@ def getPhotoFromPhotoId(pid):
 @app.route('/profile', methods=['GET'])
 @flask_login.login_required
 def own_profile():
+    print("own_profile")
     user_id = flask_login.current_user.id
     return flask.redirect(flask.url_for('profile', page_id=user_id))
 
@@ -263,6 +276,7 @@ def own_profile():
 @app.route('/profile/<page_id>', methods=['GET', 'POST'])
 @flask_login.login_required
 def profile(page_id):
+    print("profile")
     if flask.request.method == 'GET':
         fname = getUserEntryFromId(page_id)[3]
         current_user = getUserEntryFromId(flask_login.current_user.id)[1]
@@ -683,7 +697,6 @@ def photoreco():
         for t in user_tags:
             list_tags.append(t[0])
         reco_photo = getRecoPhotosFromTags(list_tags)
-        embed()
         return render_template('reco_photos.html', photorecos=reco_photo)
 
 def getRecoPhotosFromTags(tags):
