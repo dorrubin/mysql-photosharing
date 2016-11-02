@@ -15,8 +15,10 @@
     <ol>
     {% for reco in photorecos %}
         <li>
-            <p>{{reco[3]}} --- {{reco[2]}}</p>
-            <img src='data:image/png;base64, {{reco[1]}}'/>
+            <p>{{reco[4]}} --- {{reco[5]}}</p>
+            <a href="/albums/{{reco[1]}}/photos/{{reco[0]}}">
+                <img src='data:image/png;base64, {{reco[2]}}'/>
+            </a>
         </li>
     {% endfor %}
     </ol>

@@ -131,6 +131,10 @@ INSERT INTO Friends(requester_email, responder_email) VALUES ('foo@bu.edu', 'tes
 INSERT INTO Albums(name) VALUES ('Test1 Album');
 INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
 
+/*
+RAW QUERY TESTING
+*/
+
 -- SELECT *
 -- FROM Photos NATURAL JOIN
 --     (SELECT DISTINCT photo_id FROM(
@@ -174,3 +178,35 @@ INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
 -- GROUP BY word
 -- ORDER BY count(word) DESC
 -- LIMIT 5;
+
+-- SELECT *
+-- FROM Album_Photo NATURAL JOIN
+-- (
+--     SELECT *
+--     FROM Photos NATURAL JOIN
+--     (
+--         SELECT photo_id, count(photo_id)
+--         FROM Album_User NATURAL JOIN(
+--             SELECT *  
+--             FROM Album_Photo NATURAL JOIN
+--                 (SELECT * FROM(
+--                     (SELECT *
+--                     FROM Photo_Tag
+--                     WHERE word = 'cat')
+--                     UNION 
+--                     (SELECT *
+--                     FROM Photo_Tag
+--                     WHERE word = 'farm')
+--                     UNION 
+--                     (SELECT *
+--                     FROM Photo_Tag
+--                     WHERE word = 'nice')
+--                     ) AS C) AS D
+--         ) AS E
+--         WHERE user_id != 5
+--         GROUP BY photo_id
+--         ORDER BY count(photo_id) DESC
+--         LIMIT 5
+--     ) AS F
+-- ) AS G;
+

@@ -598,11 +598,11 @@ def getUsersMostPopularTags(uid):
                 FROM Photo_Tag NATURAL JOIN (SELECT photo_id
                     FROM Album_Photo NATURAL JOIN (SELECT album_id
                         FROM Album_User
-                        WHERE user_id = 2) AS A) AS B
+                        WHERE user_id = '{0}') AS A) AS B
                 GROUP BY word
                 ORDER BY count(word) DESC
                 LIMIT 5;
-            """
+            """.format(uid)
     cursor.execute(query)
     return cursor.fetchall()  # returns top 10 users
 
@@ -696,10 +696,12 @@ def photoreco():
         list_tags = []
         for t in user_tags:
             list_tags.append(t[0])
-        reco_photo = getRecoPhotosFromTags(list_tags)
+        reco_photo = getRecoPhotosFromTags(list_tags, user_id)
+        embed()
         return render_template('reco_photos.html', photorecos=reco_photo)
 
-def getRecoPhotosFromTags(tags):
+
+def getRecoPhotosFromTags(tags, uid):
     queries = []
     for i in range(len(tags)):
         # get user email of users who are not friends with the logged in user
@@ -712,16 +714,32 @@ def getRecoPhotosFromTags(tags):
     middle = 'UNION \n'.join(queries)
     # CHANGE QUERY TO SELECT *  IN TOP LINE -- UPDATE CONTROLLER TO TAKE AND DISPLAY PHOTO
     query = """ SELECT *
-                FROM Photos NATURAL JOIN
-                (SELECT photo_id FROM(
-                    {0}
-                ) AS C) AS D
-                GROUP BY photo_id
-                ORDER BY count(photo_id) DESC
-                LIMIT 5;
-            """.format(middle)
+                FROM Album_Photo NATURAL JOIN
+                (
+                    SELECT *
+                    FROM Photos NATURAL JOIN
+                    (
+                        SELECT photo_id, count(photo_id)
+                        FROM Album_User NATURAL JOIN
+                        (
+                            SELECT *
+                            FROM Album_Photo NATURAL JOIN
+                                (SELECT * FROM
+                                    (
+                                        {0}
+                                    ) AS C
+                                ) AS D
+                        ) AS E
+                        WHERE user_id != '{1}'
+                        GROUP BY photo_id
+                        ORDER BY count(photo_id) DESC
+                        LIMIT 5
+                    ) AS F
+                ) AS G;""".format(middle, uid)
+    embed()
     cursor.execute(query)
     return cursor.fetchall()
+
 
 
 @app.route("/", methods=['GET'])
