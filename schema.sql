@@ -131,4 +131,12 @@ INSERT INTO Friends(requester_email, responder_email) VALUES ('foo@bu.edu', 'tes
 INSERT INTO Albums(name) VALUES ('Test1 Album');
 INSERT INTO Album_User(album_id, user_id) VALUES (1,2);
 
-
+SELECT DISTINCT photo_id FROM(
+    (SELECT photo_id
+    FROM Photo_Tag
+    WHERE word = 'cat')
+    UNION ALL
+    (SELECT photo_id
+    FROM Photo_Tag
+    WHERE word = 'mouse')
+) AS C;

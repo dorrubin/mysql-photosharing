@@ -141,12 +141,6 @@ def register_user():
     if test:
         cursor.execute("INSERT INTO Users (email, password, first_name, last_name, gender, dob, hometown) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}','{6}' )".format(email, password, firstname, lastname, gender, dob, hometown))
         conn.commit()
-        #log user in
-        # user = User()
-        # user.email = email
-        # user.id = getUserIdFromEmail(email)
-        # user_id = user.id
-        # flask_login.login_user(user)
         return flask.redirect(flask.url_for('login'))
     else:
         print("not unique user")
@@ -560,7 +554,7 @@ def getTopTen():
                 LIMIT 10;
             """
     cursor.execute(query)
-    return cursor.fetchall()  # returns all user emails
+    return cursor.fetchall()  # returns top 10 users
 
 
 @app.route("/statistics", methods=['GET'])
@@ -569,31 +563,56 @@ def stats():
     return render_template('stats.html', ranking=ordered_ten)
 
 
-def getPhotosFromTag(tag):
+def getMostPopularTags():
     cursor = conn.cursor()
-    # get user email of users who are not friends with the logged in user
+    query = """ SELECT word, count(word)
+                FROM Photo_Tag
+                GROUP BY word
+                ORDER BY count(word) DESC
+                LIMIT 5;
+            """
+    cursor.execute(query)
+    return cursor.fetchall()  # returns top 10 users
+
+
+def getPhotosFromMultipleTags(tags):
+    cursor = conn.cursor()
+    list_tags = tags.split('+')
+    queries = []
+    for i in range(len(list_tags)):
+        # get user email of users who are not friends with the logged in user
+        temp = """  (SELECT photo_id
+                    FROM Photo_Tag
+                    WHERE word = '{0}')
+                """.format(list_tags[i])
+        queries.append(temp)
+    #end for
+    middle = 'UNION ALL \n'.join(queries)
     query = """ SELECT *
                 FROM Photos NATURAL JOIN
-                    (SELECT photo_id
-                    FROM Photo_Tag
-                    WHERE word = '{0}') AS T;
-            """.format(tag)
+                (SELECT DISTINCT photo_id FROM(
+                    {0}
+                ) AS C) AS D;
+            """.format(middle)
+    embed()
     cursor.execute(query)
     return cursor.fetchall()
-
 
 @app.route('/tags', methods=['GET', 'POST'])
 def tags():
     if flask.request.method == 'GET':
-        return render_template('tags.html')
-    tag = flask.request.form['tag_search']
-    return flask.redirect(flask.url_for('specific_tag', page_id=tag))
+        most_popular = getMostPopularTags()
+        return render_template('tags.html', top_tags=most_popular)
+    raw_tags = flask.request.form['tag_search']
+    list_tags = raw_tags.split()
+    tags = '+'.join(list_tags)
+    return flask.redirect(flask.url_for('specific_tag', page_id=tags))
 
 
 @app.route('/tags/<page_id>', methods=['GET'])
 def specific_tag(page_id):
     if flask.request.method == 'GET':
-        tagged_photos = getPhotosFromTag(page_id)
+        tagged_photos = getPhotosFromMultipleTags(page_id)
         return render_template('tags.html', pageid=page_id, photos=tagged_photos)
 
 

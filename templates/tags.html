@@ -27,6 +27,16 @@
     <p>Sorry no pictures to show here</p>
 {% endif %}
 
+{% if top_tags %}
+    <ol>
+    {% for tag in top_tags %}
+        <li>
+            <p>{{tag[0]}} -- {{tag[1]}}</p>
+        </li>
+    {% endfor %}
+    </ol>
+{% endif %}
+
 <hr>
 <ul>
     <li><a href='/'>Home</a></li>
