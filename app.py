@@ -594,7 +594,6 @@ def getPhotosFromMultipleTags(tags):
                     {0}
                 ) AS C) AS D;
             """.format(middle)
-    embed()
     cursor.execute(query)
     return cursor.fetchall()
 
@@ -614,6 +613,42 @@ def specific_tag(page_id):
     if flask.request.method == 'GET':
         tagged_photos = getPhotosFromMultipleTags(page_id)
         return render_template('tags.html', pageid=page_id, photos=tagged_photos)
+
+
+def getRecoFromMultipleTags(tags):
+    cursor = conn.cursor()
+    list_tags = tags.split('+')
+    queries = []
+    for i in range(len(list_tags)):
+        # get user email of users who are not friends with the logged in user
+        temp = """  (SELECT photo_id
+                    FROM Photo_Tag
+                    WHERE word = '{0}')
+                """.format(list_tags[i])
+        queries.append(temp)
+    #end for
+    middle = 'UNION \n'.join(queries)
+    query = """ SELECT word, count(word)
+                FROM Photo_Tag NATURAL JOIN
+                (SELECT DISTINCT photo_id FROM(
+                    {0}
+                ) AS C) AS D
+                GROUP BY word
+                ORDER BY count(word) DESC;
+                LIMIT 5;
+            """.format(middle)
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@app.route('/recommendations', methods=['GET', 'POST'])
+def reco():
+    if flask.request.method == 'GET':
+        return render_template('recommendations.html')
+    raw_tags = flask.request.form['tag_reco']
+    list_tags = raw_tags.split()
+    tags = '+'.join(list_tags)
+    user_reco = getRecoFromMultipleTags(tags)
+    return render_template('recommendations.html', recos=user_reco)
 
 
 @app.route("/", methods=['GET'])

@@ -19,10 +19,11 @@
     </ul>
     {% elif not photos and not pageid %}
     <form action='tags' method='POST'>
-        <label for="tag_search">Search for tags:</label>
+        <label for="tag_search">Search by tags:</label>
         <input type='text' name='tag_search' placeholder='boo'></input>
         <input type='submit' name='submit'></input>
     </form>
+    <br>
     {% else %}
     <p>Sorry no pictures to show here</p>
 {% endif %}
