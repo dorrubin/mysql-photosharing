@@ -10,7 +10,7 @@
 {% endif %}
 {% if photo %}
     <p>{{photo[3]}}</p>
-    <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+    <img src='data:image/png;base64, {{photo[1]}}'/>
     <p>Number of likes: {{photo[2]}}</p>
     <form action='likePhoto' method='POST'>
         <button name="photo_like" type="submit" value="{{photo[0]}}">Like Photo!</button>

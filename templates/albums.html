@@ -13,7 +13,7 @@
     {% for photo in photos %}
         <li>
             <a href="/albums/{{pageid}}/photos/{{photo[0]}}">
-                <img src='https://65.media.tumblr.com/avatar_39c12973e9fe_128.png'/>
+                <img src='data:image/png;base64, {{photo[1]}}'/>
             </a>
             <br>
             <caption>{{photo[3]}}</caption>

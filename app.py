@@ -504,7 +504,7 @@ def upload_file():
         return redirect(flask.url_for('upload_file'))
     if file and allowed_file(file.filename):
         imgfile = request.files['in-imgdata']
-        photo_data = base64.standard_b64encode(imgfile.read())
+        photo_data = base64.standard_b64encode(imgfile.read()).decode('utf8')
         user_id = flask_login.current_user.id
         album_id = request.form.get('in-album')
         if album_id == 'new':
@@ -683,7 +683,8 @@ def photoreco():
         for t in user_tags:
             list_tags.append(t[0])
         reco_photo = getRecoPhotosFromTags(list_tags)
-        return render_template('reco_photos.html', tagrecos=user_tags)
+        embed()
+        return render_template('reco_photos.html', photorecos=reco_photo)
 
 def getRecoPhotosFromTags(tags):
     queries = []
@@ -697,7 +698,7 @@ def getRecoPhotosFromTags(tags):
     #end for
     middle = 'UNION \n'.join(queries)
     # CHANGE QUERY TO SELECT *  IN TOP LINE -- UPDATE CONTROLLER TO TAKE AND DISPLAY PHOTO
-    query = """ SELECT photo_id, caption, count(photo_id)
+    query = """ SELECT *
                 FROM Photos NATURAL JOIN
                 (SELECT photo_id FROM(
                     {0}

@@ -11,11 +11,12 @@
     <input type='submit' name='submit'></input>
 </form>
 
-{% if tagrecos %}
+{% if photorecos %}
     <ol>
-    {% for reco in tagrecos %}
+    {% for reco in photorecos %}
         <li>
-            <p>{{reco[0]}} --- {{reco[1]}}</p>
+            <p>{{reco[3]}} --- {{reco[2]}}</p>
+            <img src='data:image/png;base64, {{reco[1]}}'/>
         </li>
     {% endfor %}
     </ol>

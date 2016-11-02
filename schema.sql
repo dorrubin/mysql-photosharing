@@ -60,7 +60,7 @@ Have unique photo id as primary key. Each photo needs data (a url to S3 bucket) 
 */
 CREATE TABLE Photos( 
     photo_id int4  AUTO_INCREMENT,
-    imgdata LONGBLOB,
+    imgdata LONGTEXT,
     likes INT DEFAULT 0, 
     caption VARCHAR(255),
     CONSTRAINT photo_pk PRIMARY KEY (photo_id)
