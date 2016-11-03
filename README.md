@@ -1,3 +1,5 @@
+https://github.com/dorrubin/mysql-photosharing
+
 to run: 
 $ export FLASK_APP=app.py
 $ flask run
@@ -5,7 +7,6 @@ $ flask run
 Navigate to:
 http://127.0.0.1:5000/
 
-Include relational diagram screenshot
 
 Todo:  
 ~~1. Update Schema~~  
@@ -26,8 +27,8 @@ Todo:
 ~~16. recommended photos (take 5 most commonly used tags and find photos that also have those tags)~~  
 ~~17. recommended tags (take a tag or multiple as input, find the most common tags in other photos)~~  
 
-18. Testing
-a. test the delete function on comments and likes etc
-b. test the stats page
-c. test the tag ranking
-d. Update tag click to show only users tags whereas tag search shows all users
+~18. Testing~  
+a. test the delete function on comments and likes etc  
+b. test the stats page  
+c. test the tag ranking  
+d. Update tag click to show only users tags whereas tag search shows all users  
