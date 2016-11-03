@@ -179,38 +179,41 @@ RAW QUERY TESTING
 -- ORDER BY count(word) DESC
 -- LIMIT 5;
 
+-- SELECT *
+-- FROM Photos NATURAL JOIN
+-- (
+--     SELECT photo_id, count(photo_id)
+--     FROM Album_User NATURAL JOIN
+--     (
+--         SELECT *  
+--         FROM Album_Photo NATURAL JOIN
+--         (
+--             SELECT * FROM
+--             (
+--                 (SELECT *
+--                 FROM Photo_Tag
+--                 WHERE word = 'cat')
+--                 UNION 
+--                 (SELECT *
+--                 FROM Photo_Tag
+--                 WHERE word = 'farm')
+--                 UNION 
+--                 (SELECT *
+--                 FROM Photo_Tag
+--                 WHERE word = 'nice')
+--             ) AS C
+--         ) AS D
+--     ) AS E
+--     WHERE user_id != 5
+--     GROUP BY photo_id
+--     ORDER BY count(photo_id) DESC
+--     LIMIT 5
+-- ) AS F; 
 
-
-SELECT *
-FROM Photos NATURAL JOIN
-(
-    SELECT photo_id, count(photo_id)
-    FROM Album_User NATURAL JOIN
-    (
-        SELECT *  
-        FROM Album_Photo NATURAL JOIN
-        (
-            SELECT * FROM
-            (
-                (SELECT *
-                FROM Photo_Tag
-                WHERE word = 'cat')
-                UNION 
-                (SELECT *
-                FROM Photo_Tag
-                WHERE word = 'farm')
-                UNION 
-                (SELECT *
-                FROM Photo_Tag
-                WHERE word = 'nice')
-            ) AS C
-        ) AS D
-    ) AS E
-    WHERE user_id != 5
-    GROUP BY photo_id
-    ORDER BY count(photo_id) DESC
-    LIMIT 5
-) AS F;  
-
-
-
+-- SELECT email, sum(likes), count(comment), count(user_id)
+-- FROM Interactions NATURAL JOIN
+--     (SELECT *
+--     FROM Users) AS T
+-- GROUP BY user_id
+-- ORDER BY count(interaction_id) DESC
+-- LIMIT 10;

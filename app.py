@@ -559,7 +559,7 @@ def upload_file():
 
 def getTopTen():
     cursor = conn.cursor()
-    query = """ SELECT email, count(likes), count(comment), count(interaction_id)
+    query = """ SELECT email, sum(likes), count(comment), count(user_id)
                 FROM Interactions NATURAL JOIN
                     (SELECT *
                     FROM Users) AS T

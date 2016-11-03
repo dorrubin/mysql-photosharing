@@ -23,11 +23,11 @@ Todo:
 ~~13. Search by tags for all photos~~  
 ~~14. View most popular tags~~  
 ~~15. multiple tag search~~  
-16. recommended photos (take 5 most commonly used tags and find photos that also have those tags)
-15. recommended tags (take a tag or multiple as input, find the most common tags in other photos)
-9. test the delete function on comments and likes etc
-16. test the stats page
-17. test the tag ranking
-14. Update tag click to show only users tags whereas tag search shows all users
-8. Fix bug where blob isn't converted to image
-    --> <li><img src='data:image/png;base64, {{photo[1]}}'/></li>
+~~16. recommended photos (take 5 most commonly used tags and find photos that also have those tags)~~  
+~~17. recommended tags (take a tag or multiple as input, find the most common tags in other photos)~~  
+
+18. Testing
+a. test the delete function on comments and likes etc
+b. test the stats page
+c. test the tag ranking
+d. Update tag click to show only users tags whereas tag search shows all users
